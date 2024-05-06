@@ -7,8 +7,8 @@ let services;
 
 class App implements IServer {
   private server: any;
-  private readonly PORT = 5008;
-  constructor(readonly init = expressInit) {}
+
+  constructor(readonly init = expressInit, private PORT = 5008) {}
 
   public bootstrap() {
     const app = this.init(5);
