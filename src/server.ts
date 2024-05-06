@@ -1,20 +1,28 @@
 import { IServer } from './interfaces/server.types';
 import { init as expressInit } from './presentation/http/express/index';
 import { init as fastifyInit } from './presentation/http/fastify';
-
-const serverFramework: IServer = {
-  init: expressInit,
-};
+import signals from './signals';
 
 let services;
-function bootstrap(serverChoice: IServer, services: any) {
-  const app = serverChoice.init(services);
 
-  let server;
-  const PORT = 5008;
-  server = app.listen(PORT, () => {
-    console.log(`Server spun up on ${PORT}`);
-  });
+class App implements IServer {
+  private server: any;
+  private readonly PORT = 5008;
+  constructor(readonly init = expressInit) {}
+
+  public bootstrap() {
+    const app = this.init(5);
+    this.server = app.listen(this.PORT, () => {
+      console.log(`Server spun up on ${this.PORT}`);
+    });
+  }
+
+  shutdown() {
+    signals.init(async () => {
+      await this.server.close();
+    });
+  }
 }
 
-bootstrap(serverFramework, services);
+const serverInstance = new App();
+serverInstance.bootstrap();
